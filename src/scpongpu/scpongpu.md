@@ -16,5 +16,3 @@ $ source scpongpu.profile
 $ make
 $ ./scp.exe
 ```
-
-

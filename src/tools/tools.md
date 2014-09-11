@@ -7,5 +7,3 @@ Tools could be:
 
  - phase space plot
  - Maxwell-Boltzmann distribution fit
-
-
