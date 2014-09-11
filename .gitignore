@@ -26,3 +26,9 @@
 *.exe
 *.out
 *.app
+
+# emacs backup files
+*~
+
+# aspell backup files
+*.bak
