@@ -15,4 +15,13 @@ using [CUDA](http://en.wikipedia.org/wiki/CUDA),
 where we can exploit a highly parallel architecture to accelerate the simulation.  
 
 
+More info on this projected can be found in the 
+[wiki](https://github.com/ComputationalRadiationPhysics/scpongpu/wiki) or in 
+the *Mark Down* notes found in each directory.
+
+Information on:
+ - [Development goals](doc/developmentGoals.md)
+ - [Future and available data analysis tools](src/tools/tools.md)
+ - Or how to [run SCPonGPU](src/scpongpu/info.md)
+
 
