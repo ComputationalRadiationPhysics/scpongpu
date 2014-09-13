@@ -11,6 +11,7 @@ FAST = -ftz=true -prec-div=false -prec-sqrt=false -use_fast_math
 all: fast
 
 # TODO: there is new NVIDIA hardware avaiable - adjust compilation
+# issue #5
 
 # best for hardware architectur SM_13
 13: plasma.kernel plasma.hpp vector.hpp monte_carlo.hpp main.cu parameters.hpp utilities.hpp makefile
