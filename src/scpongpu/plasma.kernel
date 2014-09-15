@@ -11,44 +11,6 @@ __forceinline__ __device__  vec coulomb_force(const vec& loc1, const vec& loc2);
 
 
 /**
- * copy function to copy all data as one block
- * TODO: is this obsolete?
- *
- * usage:
- * replace: vec my_speed = speed[index]; // 1* GLOBAL MEM
- * with:
- * copy<parameters::blocksize>(location_s, speed+blockindex, thread_id); 
- * vec my_speed = location_s[thread_id];
- * __syncthreads();
- * no performance boost
- */
-template<int threads,class Type>
-__device__ void copy(Type* destMem,const Type* srcMem, const int threadId)
-{
-    typedef typename Type::NativeType NativeType;
-    for(int i=threadId;i<(threads*sizeof(Type)/sizeof(NativeType));i+=threads)
-        ((NativeType*)destMem)[i]=((const NativeType*)srcMem)[i];
-    __syncthreads();
-}
-
-
-/**
- * set data at pointer (value) to data stored in srcMem
- * while reading srcMem with several threads
- * TODO: is this used?
- */
-template<class Type>
-__device__ void set(Type& value,const Type* srcMem,const int threadId)
-{
-        typedef typename Type::NativeType NativeType;
-#pragma unroll 5
-        for(int i=0;i<(sizeof(Type)/sizeof(NativeType));++i)    
-            *(((NativeType*)(&value))+i)=*(((const NativeType*)(srcMem+threadId))+i);
-        __syncthreads();
-}
-
-
-/**
  * compute the acceleration for the next time step
  */
 #if __CUDA_ARCH__ >= 200
