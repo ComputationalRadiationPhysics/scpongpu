@@ -11,14 +11,14 @@ struct cuda_vec
   typedef T NativeType;
 
   /**
-   * CPU/Host constructor if values are given
+   * CPU/GPU constructor if values are given
    */
   __host__ __device__ cuda_vec(T x, T y, T z)
     : x(x), y(y), z(z) {}
 
 
   /**
-   * CPU/Host constructive if values are not given
+   * CPU/GPU constructive if values are not given
    */
   __host__ __device__ cuda_vec()
     : x(0.0f), y(0.0f), z(0.0f) {}

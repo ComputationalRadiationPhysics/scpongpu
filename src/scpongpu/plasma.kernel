@@ -2,6 +2,7 @@
 #include "vector.hpp"
 #include "parameters.hpp"
 #include "utilities.hpp"
+#include <stdint.h>
 
 #pragma once
 
@@ -26,7 +27,9 @@ __global__ void next_accel(vec* location, vec* speed, vec* accel ,const int N_pa
  
   /* use shared memory for location to efficiently read positions of other 
    * particles to compute the Coulomb force */
-  __shared__ vec location_s[parameters::blocksize]; /* allocate shared memory */
+  __shared__ uint8_t location_ss[sizeof(vec)*parameters::blocksize]; /* allocate shared memory */
+  /* this is empty memory, we cast to vec without calling constructor to avoid collisions warning */
+  vec* location_s= (vec*)location_ss;
   location_s[thread_id] = location[index]; /* fill data */
   /* TODO: is this read process here necessary - reading is done below */
   vec my_location = location_s[thread_id]; /* put own position into register */
