@@ -3,61 +3,9 @@
 #include <limits.h>
 #include <cmath>
 #include <iostream>
-#include "parameters.hpp"
+#include "random_uniform.hpp"
 
 #pragma once
-
-/**
- * class to set the seed once for all random calls
- * currently use fixed seed to reproduce physics
- */
-class Monte_Carlo_Switch
-{
-public:
-  Monte_Carlo_Switch()  
-    {
-      /* currently fixed seed to reproduce physics */
-      srand( 12 /*time(NULL)*/ );  /* set seed once */
-      std::cout << " seed was set " << std::endl;
-      /* TODO make seed time, machine etc. dependent
-         TODO select seed type in via parameter file
-         issue #6
-       */         
-    } 
-};
-
-
-/**
- * generic class to return random number of a uniform distribution between
- * start (default=0.0) and 
- * end (default=1.0)
- */ 
-template<typename T>
-class Uniformly
-{
-public:
-  /**
-   * constructor
-   * set start and end value of uniform distribution
-   * create seed if not done before
-   */
-  Uniformly(T start=0.0, T end=1.0) : start(start), end(end) 
-    {
-      static Monte_Carlo_Switch set_seed;
-    }
-
-  /**
-   * return random number
-   */
-  T get()
-    {
-      return start + ((T)rand())/((T)INT_MAX) * (end - start);
-    }
-  
-private:
-  const T start;
-  const T end;
-};
 
 
 /**
@@ -169,55 +117,5 @@ private:
       return 1.0/(sqrt(2*M_PI) * sigma) * exp(-0.5*(x-mu)*(x-mu)/(sigma*sigma));
     }
 };
-
-
-/**
- * generic class to generate Maxwell-Boltzmann distributed velocities
- * for a single dimension
- */
-template<typename T>
-class Maxwell_Boltzmann
-{
-public:
-  /**
-   * constructor
-   * initialize Boltzmann distribution with temperate and particle mass
-   */
-  Maxwell_Boltzmann(T Temperatur, T mass)
-    : Temperatur(Temperatur), mass(mass), k_Boltzmann(parameters::boltzmann)
-    {
-      /* Boltzmann distribution for each dimension is just a Gaussian distribution:
-       * convert temperature and mass to standard deviation */
-      const T sigma = sqrt(k_Boltzmann * Temperatur / mass);
-      /* use generic Gaussian random number generator to build Boltzmann random number generator */
-      distribution = new Gauss_1D<T>(0.0, sigma);
-     }
-
-  /**
-   * destructor
-   */
-  ~Maxwell_Boltzmann()
-  {
-    /* free Gaussian random number generator */
-    delete distribution; 
-  } 
-
-  /**
-   * returns one dimensional velocities according to 
-   * the Maxwell-Boltzmann distribution 
-   */
-  T get()
-    {
-      return distribution->get();
-    }
-
-private:
-  const T k_Boltzmann; /* Boltzmann constant (SI units) */
-  const T Temperatur; /* temperature in Kelvin */
-  const T mass; /* mass in kg */
-  Gauss_1D<T>* distribution; /* Gaussian random number generator */
-  
-};
-
 
 

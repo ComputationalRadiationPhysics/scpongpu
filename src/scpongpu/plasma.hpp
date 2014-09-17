@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cmath>
-#include "monte_carlo.hpp"
+#include "random/random_boltzmann.hpp"
 #include "vector.hpp"
 #include "plasma.kernel"
 

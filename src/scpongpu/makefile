@@ -14,15 +14,15 @@ all: fast
 # issue #5
 
 # best for hardware architectur SM_13
-13: plasma.kernel plasma.hpp vector.hpp monte_carlo.hpp main.cu parameters.hpp utilities.hpp makefile
+13: plasma.kernel plasma.hpp vector.hpp random/* main.cu parameters.hpp utilities.hpp makefile
 	$(CC) $(CFLAGS) $(SM13) main.cu -o scp.exe
 
 # best for hardware architectur SM_20 + no fast math
-slow: plasma.kernel plasma.hpp vector.hpp monte_carlo.hpp main.cu parameters.hpp utilities.hpp makefile
+slow: plasma.kernel plasma.hpp vector.hpp random/* main.cu parameters.hpp utilities.hpp makefile
 	$(CC) $(CFLAGS) $(SM20) main.cu -o scp.exe
 
 # best for hardware architectur SM_20 + with fast math
-fast: plasma.kernel plasma.hpp vector.hpp monte_carlo.hpp main.cu parameters.hpp utilities.hpp makefile
+fast: plasma.kernel plasma.hpp vector.hpp random/* main.cu parameters.hpp utilities.hpp makefile
 	$(CC) $(CFLAGS) $(SM20) $(FAST) main.cu -o scp.exe
 
 # remove the executable
