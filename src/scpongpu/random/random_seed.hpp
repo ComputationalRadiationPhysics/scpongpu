@@ -16,8 +16,10 @@ class Monte_Carlo_Switch_fixed
 public:
   Monte_Carlo_Switch_fixed()  
     {
-      srand( 12 );  /* set seed once */
-      std::cout << " seed was set " << std::endl;
+      const unsigned int seed = 12;
+      srand( seed );  /* set seed once */
+      std::cout << " seed was set to: " << seed 
+                << " (fixed value)" << std::endl;
     } 
 };
 
@@ -31,8 +33,10 @@ class Monte_Carlo_Switch_random
 public:
   Monte_Carlo_Switch_random()  
     {
-      srand( time(NULL) );  /* set seed once */
-      std::cout << " seed was set " << std::endl;
+      const unsigned int seed = time(NULL)*::getpid();
+      srand( seed );  /* set seed once */
+      std::cout << " seed was set to: " << seed 
+                << " (randomly set)" << std::endl;
     } 
 };
 
