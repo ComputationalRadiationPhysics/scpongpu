@@ -2,12 +2,26 @@ SCPonGPU
 ========
 **Simulation of strongly coupled plasma using GPUs**
 
-SCPonGPU is a simulation code to  simulate the laser-ion-cooling process in 
-storage rings and particle traps. In order to simulate the strong coupling 
-of ions in these scenarios, the interaction of all particles with each other  
-is considered. Since this is evaluation with complexity NxN we simulate
-the particle-particle interaction on GPUs where we can exploit the highly 
-parallel architecture to accelerate the simulation.  
+SCPonGPU is a code to simulate [laser cooling](http://en.wikipedia.org/wiki/Laser_cooling) of 
+ions in storage rings and particle traps. 
+In order to simulate the strong coupling of ions in these scenarios, the 
+[Coulomb interaction](http://en.wikipedia.org/wiki/Coulomb%27s_law) of all particles 
+with each other is considered. 
+This approach is called a [molecular dynamics simulation](http://en.wikipedia.org/wiki/Molecular_dynamics), 
+short MD, and has a computational complexity of `NxN` (with `N` being the number of particles).
+Since this product can be quite large,
+we simulate the particle-particle interaction on [GPUs](http://en.wikipedia.org/wiki/Graphics_processing_unit) 
+using [CUDA](http://en.wikipedia.org/wiki/CUDA), 
+where we can exploit a highly parallel architecture to accelerate the simulation.  
 
+
+More info on this projected can be found in the 
+[wiki](https://github.com/ComputationalRadiationPhysics/scpongpu/wiki) or in 
+the *Mark Down* notes found in each directory.
+
+Information on:
+ - [Development goals](doc/developmentGoals.md)
+ - [Future and available data analysis tools](src/tools/tools.md)
+ - Or how to [run SCPonGPU](src/scpongpu/info.md)
 
 
