@@ -3,68 +3,16 @@
 #include <limits.h>
 #include <cmath>
 #include <iostream>
-#include "parameters.hpp"
+#include "random_uniform.hpp"
 
 #pragma once
-
-/**
- * class to set the seed once for all random calls
- * currently use fixed seed to reproduce physics
- */
-class Monte_Carlo_Switch
-{
-public:
-  Monte_Carlo_Switch()  
-    {
-      /* currently fixed seed to reproduce physics */
-      srand( 12 /*time(NULL)*/ );  /* set seed once */
-      std::cout << " seed was set " << std::endl;
-      /* TODO make seed time, machine etc. dependent
-         TODO select seed type in via parameter file
-         issue #6
-       */         
-    } 
-};
-
-
-/**
- * generic class to return random number of a uniform distribution between
- * start (default=0.0) and 
- * end (default=1.0)
- */ 
-template<typename T>
-class Uniformly
-{
-public:
-  /**
-   * constructor
-   * set start and end value of uniform distribution
-   * create seed if not done before
-   */
-  Uniformly(T start=0.0, T end=1.0) : start(start), end(end) 
-    {
-      static Monte_Carlo_Switch set_seed;
-    }
-
-  /**
-   * return random number
-   */
-  T get()
-    {
-      return start + ((T)rand())/((T)INT_MAX) * (end - start);
-    }
-  
-private:
-  const T start;
-  const T end;
-};
 
 
 /**
  * generic class to return random number according to a Gaussian 
  * distribution around mu (default=0.0) with sigma (default=1.0)
  */
-template <typename T>
+template <typename T, typename Seed>
 class Gauss_1D
 {
 public:
@@ -89,10 +37,10 @@ public:
       const T supremum = function(mu) * 1.01;
 
       /* uniform random number generated from 0-supremum: */
-      uni = new Uniformly<T>(0.0, supremum);
+      uni = new Uniformly<T, Seed>(0.0, supremum);
 
       /* uniform random number generator for x-values under Gaussian curve: */
-      in_range = new Uniformly<T>(min, max);
+      in_range = new Uniformly<T, Seed>(min, max);
     }
 
   /**
@@ -110,8 +58,8 @@ public:
     {
       /* for details see simpler constructor */
       const T supremum = function(mu) * 1.01;
-      uni = new Uniformly<T>(0.0, supremum);
-      in_range = new Uniformly<T>(min, max);
+      uni = new Uniformly<T, Seed>(0.0, supremum);
+      in_range = new Uniformly<T, Seed>(min, max);
     }
 
 
@@ -156,8 +104,8 @@ private:
   const T sigma; /* standard deviation */
   T min; /* min value for x */
   T max; /* max value for x */
-  Uniformly<T>* in_range; /* uniform distribution from [min, max] */
-  Uniformly<T>* uni; /* uniform distribution [0.0, supremum] */
+  Uniformly<T, Seed>* in_range; /* uniform distribution from [min, max] */
+  Uniformly<T, Seed>* uni; /* uniform distribution [0.0, supremum] */
 
   /**
    * function describing the probability distribution
@@ -169,55 +117,5 @@ private:
       return 1.0/(sqrt(2*M_PI) * sigma) * exp(-0.5*(x-mu)*(x-mu)/(sigma*sigma));
     }
 };
-
-
-/**
- * generic class to generate Maxwell-Boltzmann distributed velocities
- * for a single dimension
- */
-template<typename T>
-class Maxwell_Boltzmann
-{
-public:
-  /**
-   * constructor
-   * initialize Boltzmann distribution with temperate and particle mass
-   */
-  Maxwell_Boltzmann(T Temperatur, T mass)
-    : Temperatur(Temperatur), mass(mass), k_Boltzmann(parameters::boltzmann)
-    {
-      /* Boltzmann distribution for each dimension is just a Gaussian distribution:
-       * convert temperature and mass to standard deviation */
-      const T sigma = sqrt(k_Boltzmann * Temperatur / mass);
-      /* use generic Gaussian random number generator to build Boltzmann random number generator */
-      distribution = new Gauss_1D<T>(0.0, sigma);
-     }
-
-  /**
-   * destructor
-   */
-  ~Maxwell_Boltzmann()
-  {
-    /* free Gaussian random number generator */
-    delete distribution; 
-  } 
-
-  /**
-   * returns one dimensional velocities according to 
-   * the Maxwell-Boltzmann distribution 
-   */
-  T get()
-    {
-      return distribution->get();
-    }
-
-private:
-  const T k_Boltzmann; /* Boltzmann constant (SI units) */
-  const T Temperatur; /* temperature in Kelvin */
-  const T mass; /* mass in kg */
-  Gauss_1D<T>* distribution; /* Gaussian random number generator */
-  
-};
-
 
 

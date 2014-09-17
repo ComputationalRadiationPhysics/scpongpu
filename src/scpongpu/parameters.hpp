@@ -2,11 +2,20 @@
 
 /* define data types */
 #include "vector.hpp"
+#include "random/random_seed.hpp"
 
 #define NUMTYPE float
 
 typedef NUMTYPE numtype;
 typedef cuda_vec<numtype> vec;
+
+/* select random seed:
+ *  - Monte_Carlo_Switch_random
+ *  - Monte_Carlo_Switch_fixed (for debuging only)
+ */
+typedef Monte_Carlo_Switch_random SeedSelected;
+
+
 
 /* all parameters needed for the simulation */
 namespace parameters
