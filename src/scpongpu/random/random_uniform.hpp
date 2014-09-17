@@ -13,7 +13,7 @@
  * start (default=0.0) and 
  * end (default=1.0)
  */ 
-template<typename T>
+template<typename T, typename Seed>
 class Uniformly
 {
 public:
@@ -24,7 +24,7 @@ public:
    */
   Uniformly(T start=0.0, T end=1.0) : start(start), end(end) 
     {
-      static Monte_Carlo_Switch set_seed;
+      static Seed set_seed;
     }
 
   /**

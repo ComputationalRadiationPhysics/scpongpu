@@ -13,7 +13,7 @@
  * generic class to generate Maxwell-Boltzmann distributed velocities
  * for a single dimension
  */
-template<typename T>
+template<typename T, typename Seed>
 class Maxwell_Boltzmann
 {
 public:
@@ -28,7 +28,7 @@ public:
        * convert temperature and mass to standard deviation */
       const T sigma = sqrt(k_Boltzmann * Temperatur / mass);
       /* use generic Gaussian random number generator to build Boltzmann random number generator */
-      distribution = new Gauss_1D<T>(0.0, sigma);
+      distribution = new Gauss_1D<T, Seed>(0.0, sigma);
      }
 
   /**
@@ -53,7 +53,7 @@ private:
   const T k_Boltzmann; /* Boltzmann constant (SI units) */
   const T Temperatur; /* temperature in Kelvin */
   const T mass; /* mass in kg */
-  Gauss_1D<T>* distribution; /* Gaussian random number generator */
+  Gauss_1D<T, Seed>* distribution; /* Gaussian random number generator */
   
 };
 

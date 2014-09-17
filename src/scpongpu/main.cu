@@ -19,7 +19,7 @@ int main(void)
   vec speed_h[N_particle];      /* particle speed on host (default=0) */
 
   /* TODO replace magic numbers */
-  Uniformly<numtype> uni(-1.0e-5f, 1.0e-5f);  /* random distribution for positioning */
+  Uniformly<numtype, SeedSelected> uni(-1.0e-5f, 1.0e-5f);  /* random distribution for positioning */
   for(unsigned int i=0; i<N_particle; ++i)
     {
       /* give each particle a random position */

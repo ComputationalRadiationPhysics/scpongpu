@@ -12,7 +12,7 @@
  * generic class to return random number according to a Gaussian 
  * distribution around mu (default=0.0) with sigma (default=1.0)
  */
-template <typename T>
+template <typename T, typename Seed>
 class Gauss_1D
 {
 public:
@@ -37,10 +37,10 @@ public:
       const T supremum = function(mu) * 1.01;
 
       /* uniform random number generated from 0-supremum: */
-      uni = new Uniformly<T>(0.0, supremum);
+      uni = new Uniformly<T, Seed>(0.0, supremum);
 
       /* uniform random number generator for x-values under Gaussian curve: */
-      in_range = new Uniformly<T>(min, max);
+      in_range = new Uniformly<T, Seed>(min, max);
     }
 
   /**
@@ -58,8 +58,8 @@ public:
     {
       /* for details see simpler constructor */
       const T supremum = function(mu) * 1.01;
-      uni = new Uniformly<T>(0.0, supremum);
-      in_range = new Uniformly<T>(min, max);
+      uni = new Uniformly<T, Seed>(0.0, supremum);
+      in_range = new Uniformly<T, Seed>(min, max);
     }
 
 
@@ -104,8 +104,8 @@ private:
   const T sigma; /* standard deviation */
   T min; /* min value for x */
   T max; /* max value for x */
-  Uniformly<T>* in_range; /* uniform distribution from [min, max] */
-  Uniformly<T>* uni; /* uniform distribution [0.0, supremum] */
+  Uniformly<T, Seed>* in_range; /* uniform distribution from [min, max] */
+  Uniformly<T, Seed>* uni; /* uniform distribution [0.0, supremum] */
 
   /**
    * function describing the probability distribution

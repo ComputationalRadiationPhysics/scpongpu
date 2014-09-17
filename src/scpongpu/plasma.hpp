@@ -92,7 +92,7 @@ void heating(vec* location_h, vec* speed_h, vec* speed_d, const unsigned int siz
   using namespace parameters;
 
   /* instantaneous heat bath: */
-  Maxwell_Boltzmann<numtype> give_speed(Temperature, particle_mass);
+  Maxwell_Boltzmann<numtype, SeedSelected> give_speed(Temperature, particle_mass);
   for(unsigned i=0; i<N_particle; ++i)
     {
       speed_h[i].x = give_speed.get(); 

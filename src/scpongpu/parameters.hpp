@@ -13,7 +13,7 @@ typedef cuda_vec<numtype> vec;
  *  - Monte_Carlo_Switch_random
  *  - Monte_Carlo_Switch_fixed (for debuging only)
  */
-typedef Monte_Carlo_Switch_random Monte_Carlo_Switch;
+typedef Monte_Carlo_Switch_random SeedSelected;
 
 
 
