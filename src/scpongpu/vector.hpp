@@ -13,15 +13,27 @@ struct cuda_vec
   /**
    * CPU/GPU constructor if values are given
    */
-  __host__ __device__ cuda_vec(T x, T y, T z)
-    : x(x), y(y), z(z) {}
+  __forceinline__ __host__ __device__ cuda_vec(T x, T y, T z)
+    : x(x), y(y), z(z) { }
 
 
   /**
    * CPU/GPU constructive if values are not given
    */
-  __host__ __device__ cuda_vec()
-    : x(0.0f), y(0.0f), z(0.0f) {}
+   __forceinline__ __host__ __device__ cuda_vec(void)
+  {
+    
+  }
+
+  /**
+   * method to set all values of the vector to zero
+   */
+ __host__ __device__ void zero()
+  {
+    x = (T) 0.0f;
+    y = (T) 0.0f;
+    z = (T) 0.0f;
+  }
 
 
   /**

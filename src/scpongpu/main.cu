@@ -16,7 +16,8 @@ int main(void)
 
   /* set up start parameters and copy them to GPU:*/
   vec location_h[N_particle];   /* particle location on host */
-  vec speed_h[N_particle];      /* particle speed on host (default=0) */
+  vec speed_h[N_particle];      /* particle speed on host*/
+  vec accel_h[N_particle];      /* particle acceleration on host*/
 
   /* TODO replace magic numbers */
   Uniformly<numtype, SeedSelected> uni(-1.0e-5f, 1.0e-5f);  /* random distribution for positioning */
@@ -26,6 +27,11 @@ int main(void)
       location_h[i].x = uni.get() * chi_length;
       location_h[i].y = uni.get() * chi_length;
       location_h[i].z = uni.get() * chi_length;
+      
+      /* give each particle a zeros speed and zero acceleration */      
+      speed_h[i].zero();
+      accel_h[i].zero();
+        
     }
 
   /* print iteration starting values: */
@@ -46,6 +52,7 @@ int main(void)
   cudaMalloc((void**)&accel_d,    size);
   cudaMemcpy(location_d, location_h, size, cudaMemcpyHostToDevice);
   cudaMemcpy(speed_d,    speed_h,    size, cudaMemcpyHostToDevice);
+  cudaMemcpy(accel_d,    accel_h,    size, cudaMemcpyHostToDevice);
  
   /* set parallelization parameters: */
   dim3 gridDim(N_particle/blocksize, 1, 1);
@@ -57,10 +64,16 @@ int main(void)
   /* ################################################################ */
 
   /* find physically correct start position */
-  finding_ground_state(location_h, speed_h, location_d, speed_d, accel_d, size, gridDim, blockDim);
+  finding_ground_state(location_d, speed_d, accel_d, speed_h, size, gridDim, blockDim);
+  cudaMemcpy(location_h, location_d, size, cudaMemcpyDeviceToHost);
+  cudaMemcpy(speed_h,    speed_d,    size, cudaMemcpyDeviceToHost);
 
   /* overwrite particle speed to set predefined temperature */
-  heating(location_h, speed_h, speed_d, size);
+  heating(speed_h, speed_d, size);
+  /* print starting values: */
+  /* verbose output */
+  std::cout << "Start values: " << std::endl; 
+  print_particles(location_h, speed_h, N_particle);
 
   /* simulate laser cooling */
   cool_down(location_d, speed_d, accel_d, gridDim, blockDim);
@@ -76,8 +89,10 @@ int main(void)
   /* copy results from GPU to CPU: */
   cudaMemcpy(location_h, location_d, size, cudaMemcpyDeviceToHost);
   cudaMemcpy(speed_h,    speed_d,    size, cudaMemcpyDeviceToHost);
+  cudaMemcpy(accel_h,    accel_d,    size, cudaMemcpyDeviceToHost);
   cudaFree(location_d);
   cudaFree(speed_d);
+  cudaFree(accel_d);
 
   /* print results: */
   std::cout << std::endl << std::endl << "final values: " << std::endl;
