@@ -10,18 +10,29 @@
 /** 
  * print particle position and velocity to stdout 
 */
-void print_particles(vec* location, vec* speed, unsigned int N_particle);
+void print_particles(vec* location, 
+                     vec* speed, 
+                     unsigned int N_particle);
 
 /**
  * save particle location and speed to logfile
  */
-void save_particles(vec* location, vec* speed, unsigned int N_particle, FILE* logfile);
+void save_particles(vec* location, 
+                    vec* speed, 
+                    unsigned int N_particle, 
+                    FILE* logfile);
 
 /**
  * perform a single velocity-verlet step to propagate speed and position for one time step
  */
-void inline velocity_verlet_step(vec* location_d, vec* speed_d, vec* accel_d, const unsigned int N_particle,
-				 const numtype delta_t, const dim3 gridDim, const dim3 blockDim, unsigned int i);
+void inline velocity_verlet_step(vec* location_d, 
+                                 vec* speed_d, 
+                                 vec* accel_d, 
+                                 const unsigned int N_particle,
+                                 const numtype delta_t, 
+                                 const dim3 gridDim, 
+                                 const dim3 blockDim, 
+                                 unsigned int i);
 
 
 
@@ -32,8 +43,13 @@ void inline velocity_verlet_step(vec* location_d, vec* speed_d, vec* accel_d, co
  * by applying the Coulomb force and and a friction force, a physically 
  * correct, cold state is reached
  */
-void finding_ground_state(vec* location_h, vec* speed_h, vec* location_d, vec* speed_d, vec* accel_d,
-			  const unsigned int size, const dim3 gridDim, const dim3 blockDim)
+void finding_ground_state(vec* location_d, 
+                          vec* speed_d, 
+                          vec* accel_d,
+                          vec* speed_h,
+                          const unsigned int size, 
+                          const dim3 gridDim, 
+                          const dim3 blockDim)
 {
   using namespace parameters;
 
@@ -57,7 +73,6 @@ void finding_ground_state(vec* location_h, vec* speed_h, vec* location_d, vec* s
           /* check every 1000th step if changes are negligible */
           /* TODO 1000 is a magic number */
           /* copy data from device to host */
-          cudaMemcpy(location_h, location_d, size, cudaMemcpyDeviceToHost); 
           cudaMemcpy(speed_h,    speed_d,    size, cudaMemcpyDeviceToHost);
           /* TODO: planning to implement this in between velocity_verlet steps with asynchronous memcopy */
 
@@ -87,7 +102,7 @@ void finding_ground_state(vec* location_h, vec* speed_h, vec* location_d, vec* s
  * give particles a temperature by overwriting their velocities
  * with Maxwell-Boltzmann distributed speeds
  */
-void heating(vec* location_h, vec* speed_h, vec* speed_d, const unsigned int size)
+void heating(vec* speed_h, vec* speed_d, const unsigned int size)
 {
   using namespace parameters;
 
@@ -103,10 +118,6 @@ void heating(vec* location_h, vec* speed_h, vec* speed_d, const unsigned int siz
   /* copy new speed to GPU: */
   cudaMemcpy(speed_d,    speed_h,    size, cudaMemcpyHostToDevice);
   
-  /* print starting values: */
-  /* verbose output */
-  std::cout << "Start values: " << std::endl; 
-  print_particles(location_h, speed_h, N_particle);
 }
 
 
@@ -114,7 +125,11 @@ void heating(vec* location_h, vec* speed_h, vec* speed_d, const unsigned int siz
  * simulate laser cooling for predefined time period
  * TODO: should t_end and delta_t be a parameter to this function?
  */
-void cool_down(vec* location_d, vec* speed_d, vec* accel_d, const dim3 gridDim, const dim3 blockDim)
+void cool_down(vec* location_d, 
+               vec* speed_d, 
+               vec* accel_d, 
+               const dim3 gridDim, 
+               const dim3 blockDim)
 {
   using namespace parameters;
 
@@ -133,7 +148,9 @@ void cool_down(vec* location_d, vec* speed_d, vec* accel_d, const dim3 gridDim, 
 /**
  * print particle position and speed to stdout
  */
-void print_particles(vec* location, vec* speed, unsigned int N_particle)
+void print_particles(vec* location, 
+                     vec* speed, 
+                     unsigned int N_particle)
 {
   /* determine conversion factors from simulation units to SI units */
   using namespace parameters;
@@ -159,7 +176,10 @@ void print_particles(vec* location, vec* speed, unsigned int N_particle)
 /**
  * save particle data to file
  */
-void save_particles(vec* location, vec* speed, unsigned int N_particle, FILE* logfile)
+void save_particles(vec* location, 
+                    vec* speed, 
+                    unsigned int N_particle, 
+                    FILE* logfile)
 {
   /* determine conversion factors from simulation units to SI units */
   using namespace parameters;
@@ -182,8 +202,14 @@ void save_particles(vec* location, vec* speed, unsigned int N_particle, FILE* lo
 /**
  * perform one velocity-verlet step
  */
-void inline velocity_verlet_step(vec* location_d, vec* speed_d, vec* accel_d, const unsigned int N_particle,
-				 const numtype delta_t, const dim3 gridDim, const dim3 blockDim, const unsigned int i)
+void inline velocity_verlet_step(vec* location_d, 
+                                 vec* speed_d, 
+                                 vec* accel_d, 
+                                 const unsigned int N_particle,
+                                 const numtype delta_t, 
+                                 const dim3 gridDim, 
+                                 const dim3 blockDim, 
+                                 const unsigned int i)
 {
   /* velocity verlet: 1 time step = 2 parts (step_1 and step_2) */
 
