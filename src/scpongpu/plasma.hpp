@@ -102,7 +102,9 @@ void finding_ground_state(vec* location_d,
  * give particles a temperature by overwriting their velocities
  * with Maxwell-Boltzmann distributed speeds
  */
-void heating(vec* speed_h, vec* speed_d, const unsigned int size)
+void heating(vec* speed_h, 
+             vec* speed_d, 
+             const unsigned int size)
 {
   using namespace parameters;
 
