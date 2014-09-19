@@ -24,9 +24,13 @@ namespace parameters
   const unsigned int my_N_particle = 7168; 
 
   /* configure parallelization: */
-#if __MY_ARCH__ >= 200
+#if __MY_ARCH__ >= 350
   const unsigned int blocksize = 64;       /* blocksize */
-  const unsigned int min_blockspermp = 8;  /* blocks per sm */
+#elif __MY_ARCH__ >= 200
+  const unsigned int blocksize = 64;       /* blocksize */
+  /* TODO: what is this variable used for, 
+   * improve parallelization for each achitectur */
+  /* const unsigned int min_blockspermp = 8;*/  /* blocks per sm */
 #else
   const unsigned int blocksize = 128;      /* blocksize */
 #endif
