@@ -1,5 +1,24 @@
-#pragma once
+/**
+ * Copyright 2014  Richard Pausch
+ *
+ * This file is part of SCPonGPU.
+ *
+ * SCPonGPU is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SCPonGPU is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SCPonGPU.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
 
+#pragma once
 
 /**
  * Template 3D vector with T as data type
@@ -13,15 +32,27 @@ struct cuda_vec
   /**
    * CPU/GPU constructor if values are given
    */
-  __host__ __device__ cuda_vec(T x, T y, T z)
-    : x(x), y(y), z(z) {}
+  __forceinline__ __host__ __device__ cuda_vec(T x, T y, T z)
+    : x(x), y(y), z(z) { }
 
 
   /**
    * CPU/GPU constructive if values are not given
    */
-  __host__ __device__ cuda_vec()
-    : x(0.0f), y(0.0f), z(0.0f) {}
+   __forceinline__ __host__ __device__ cuda_vec(void)
+  {
+    
+  }
+
+  /**
+   * method to set all values of the vector to zero
+   */
+ __host__ __device__ void zero()
+  {
+    x = (T) 0.0f;
+    y = (T) 0.0f;
+    z = (T) 0.0f;
+  }
 
 
   /**

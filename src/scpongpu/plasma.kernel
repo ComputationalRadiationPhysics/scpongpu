@@ -1,3 +1,23 @@
+/**
+ * Copyright 2014  Richard Pausch
+ *
+ * This file is part of SCPonGPU.
+ *
+ * SCPonGPU is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SCPonGPU is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SCPonGPU.
+ * If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <cmath> // actually just CUDA Math 
 #include "vector.hpp"
 #include "parameters.hpp"
@@ -14,11 +34,11 @@ __forceinline__ __device__  vec coulomb_force(const vec& loc1, const vec& loc2);
 /**
  * compute the acceleration for the next time step
  */
-#if __CUDA_ARCH__ >= 200
-__launch_bounds__(parameters::blocksize, parameters::min_blockspermp)
-#endif
-__global__ void next_accel(vec* location, vec* speed, vec* accel ,const int N_particle, 
-				const numtype delta)
+__global__ void next_accel(vec* location, 
+                           vec* speed, 
+                           vec* accel,
+                           const int N_particle, 
+                           const numtype delta)
 {
   /* compute parallelization index */
   const int thread_id = threadIdx.x; 
@@ -27,17 +47,18 @@ __global__ void next_accel(vec* location, vec* speed, vec* accel ,const int N_pa
  
   /* use shared memory for location to efficiently read positions of other 
    * particles to compute the Coulomb force */
-  __shared__ uint8_t location_ss[sizeof(vec)*parameters::blocksize]; /* allocate shared memory */
+  __shared__ uint8_t dummy_location_s[sizeof(vec)*parameters::blocksize]; /* allocate shared memory */
   /* this is empty memory, we cast to vec without calling constructor to avoid collisions warning */
-  vec* location_s= (vec*)location_ss;
+  vec* location_s= (vec*)dummy_location_s;
   location_s[thread_id] = location[index]; /* fill data */
   /* TODO: is this read process here necessary - reading is done below */
   vec my_location = location_s[thread_id]; /* put own position into register */
   __syncthreads(); /* wait till location_s is filled by all threads */
 
   /* memory for acceleration */
-  vec a_t0;  /* initializes as  (0,0,0) */
-  
+  vec a_t0;  
+  a_t0.zero(); /* initializes as (0,0,0) */
+
   /* compute Coulomb forces: */
   for(int read_block = 0; read_block<N_particle/parameters::blocksize; ++read_block)
     {
@@ -62,9 +83,6 @@ __global__ void next_accel(vec* location, vec* speed, vec* accel ,const int N_pa
 /**
  * first half of velocity verlet algorithm
  */
-#if __CUDA_ARCH__ >= 200
-__launch_bounds__(parameters::blocksize, parameters::min_blockspermp)
-#endif
 __global__ void next_step_1(vec* location, vec* speed, vec* accel, const int N_particle, 
 				const numtype delta)
 {
@@ -92,9 +110,6 @@ __global__ void next_step_1(vec* location, vec* speed, vec* accel, const int N_p
 /**
  * second half of velocity verlet algorithm
  */
-#if __CUDA_ARCH__ >= 200
-__launch_bounds__(parameters::blocksize, parameters::min_blockspermp)
-#endif
 __global__ void next_step_2(vec* location, vec* speed, vec* accel, const int N_particle, 
 				const numtype delta)
 {
