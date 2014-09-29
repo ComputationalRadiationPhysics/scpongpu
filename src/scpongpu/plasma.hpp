@@ -71,19 +71,19 @@ void finding_ground_state(vec* location_d,
                           const dim3 gridDim, 
                           const dim3 blockDim)
 {
-  using namespace parameters;
+  namespace param = parameters;
 
   /* finding ground state by repeating particle pushes till stability is reached: */
-  for(unsigned i=0; i<N_max_iterations; ++i)
+  for(unsigned i=0; i<param::N_max_iterations; ++i)
     {
       /* one step using velocity-verlet as integrator: */
-      velocity_verlet_step(location_d, speed_d, accel_d, N_particle, delta_t, gridDim, blockDim, i);
+      velocity_verlet_step(location_d, speed_d, accel_d, param::N_particle, param::delta_t, gridDim, blockDim, i);
 
       /* determine if iteration can be stopped (no changes in particle movement anymore) */
-      if(i == N_max_iterations - 1) /* loop counter stop due to max iterations */
+      if(i == param::N_max_iterations - 1) /* loop counter stop due to max iterations */
         {
           std::cout << std::endl << " iteration stopped: loop counter reached limit of " 
-                    << N_max_iterations << std::endl;
+                    << param::N_max_iterations << std::endl;
         }
       else if(i%1000 == 999) /* in between checks */
         {
@@ -98,7 +98,7 @@ void finding_ground_state(vec* location_d,
 
           numtype total_speed = 0.;
           /* add all speed magnitudes */
-          for(unsigned p=0; p< N_particle; ++p) 
+          for(unsigned p=0; p< param::N_particle; ++p) 
             {
               total_speed += std::sqrt(util::square(speed_h[p].x) + 
                                        util::square(speed_h[p].y) + 
@@ -106,7 +106,7 @@ void finding_ground_state(vec* location_d,
             }
 
           /* check if average speed is below limit */
-          if(total_speed/N_particle < epsilon_speed) 
+          if(total_speed/param::N_particle < param::epsilon_speed) 
             {
               /* verbose output: inform about number of iterations */
               std::cout << std::endl << "   iteration stopped: needed " << i+1 
@@ -126,11 +126,11 @@ void heating(vec* speed_h,
              vec* speed_d, 
              const unsigned int size)
 {
-  using namespace parameters;
+  namespace param = parameters;
 
   /* instantaneous heat bath: */
-  Maxwell_Boltzmann<numtype, SeedSelected> give_speed(Temperature, particle_mass);
-  for(unsigned i=0; i<N_particle; ++i)
+  Maxwell_Boltzmann<numtype, SeedSelected> give_speed(param::Temperature, param::particle_mass);
+  for(unsigned i=0; i<param::N_particle; ++i)
     {
       speed_h[i].x = give_speed.get(); 
       speed_h[i].y = give_speed.get(); 
@@ -153,15 +153,15 @@ void cool_down(vec* location_d,
                const dim3 gridDim, 
                const dim3 blockDim)
 {
-  using namespace parameters;
+  namespace param = parameters;
 
   /* cool particles down again: */
   unsigned int i=0; /* step counter */
 
   /* run from t=0 to t=t_end */
-  for(numtype t=0; t<t_end; t+=delta_t) 
+  for(numtype t=0; t<param::t_end; t+=param::delta_t) 
     {
-      velocity_verlet_step(location_d, speed_d, accel_d, N_particle, delta_t, gridDim, blockDim, i);
+      velocity_verlet_step(location_d, speed_d, accel_d, param::N_particle, param::delta_t, gridDim, blockDim, i);
       ++i; /* increase step counter */
     }
 }
@@ -172,15 +172,15 @@ void cool_down(vec* location_d,
  */
 void print_particles(vec* location, 
                      vec* speed, 
-                     unsigned int N_particle)
+                     unsigned int N_particle_print)
 {
   /* determine conversion factors from simulation units to SI units */
-  using namespace parameters;
-  const numtype lengthfactor = 1.0/parameters::chi_length;
-  const numtype speedfactor = parameters::chi_time/parameters::chi_length;
+  namespace param = parameters;
+  const numtype lengthfactor = 1.0/param::chi_length;
+  const numtype speedfactor = param::chi_time/param::chi_length;
 
   /* print particles with id 0 to N_particles */
-  for(unsigned int i=0; i<N_particle; ++i)
+  for(unsigned int i=0; i<N_particle_print; ++i)
     {
       std::cout << "particle: " << i 
                 << " \t location: ( " << location[i].x*lengthfactor << " , " 
@@ -200,16 +200,16 @@ void print_particles(vec* location,
  */
 void save_particles(vec* location, 
                     vec* speed, 
-                    unsigned int N_particle, 
+                    unsigned int N_particle_save, 
                     FILE* logfile)
 {
   /* determine conversion factors from simulation units to SI units */
-  using namespace parameters;
-  const float lengthfactor = 1.0/parameters::chi_length;
-  const float speedfactor = parameters::chi_time/parameters::chi_length;
+  namespace param = parameters;
+  const float lengthfactor = 1.0/param::chi_length;
+  const float speedfactor = param::chi_time/param::chi_length;
 
   /* print particles with id 0 to N_particles to file */
-  for(unsigned int i=0; i<N_particle; ++i)
+  for(unsigned int i=0; i<N_particle_save; ++i)
     {
       fprintf(logfile,
               "particle: %u \t location: ( %f , %f , %f )  \t speed: ( %f , %f , %f )\n",
@@ -227,7 +227,7 @@ void save_particles(vec* location,
 void inline velocity_verlet_step(vec* location_d, 
                                  vec* speed_d, 
                                  vec* accel_d, 
-                                 const unsigned int N_particle,
+                                 const unsigned int N_particle_vv,
                                  const numtype delta_t, 
                                  const dim3 gridDim, 
                                  const dim3 blockDim, 
@@ -238,13 +238,13 @@ void inline velocity_verlet_step(vec* location_d,
   /* initial first Coulomb force at step 0 */
   if(i==0) 
     {
-      next_accel<<<gridDim, blockDim>>>(location_d, speed_d, accel_d, N_particle, delta_t);
+      next_accel<<<gridDim, blockDim>>>(location_d, speed_d, accel_d, N_particle_vv, delta_t);
     }
 
   /* then always do: */
-  next_step_1<<<gridDim, blockDim>>>(location_d, speed_d, accel_d, N_particle, delta_t);
-  next_accel<<<gridDim, blockDim>>>(location_d, speed_d, accel_d, N_particle, delta_t);
-  next_step_2<<<gridDim, blockDim>>>(location_d, speed_d, accel_d, N_particle, delta_t);
+  next_step_1<<<gridDim, blockDim>>>(location_d, speed_d, accel_d, N_particle_vv, delta_t);
+  next_accel<<<gridDim, blockDim>>>(location_d, speed_d, accel_d, N_particle_vv, delta_t);
+  next_step_2<<<gridDim, blockDim>>>(location_d, speed_d, accel_d, N_particle_vv, delta_t);
 }
 
 
